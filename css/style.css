@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@700&display=swap');
+
+/*--------------*\
+    #VARIABLES
+\*--------------*/
+
+:root{
+    /* Colors */
+    --very-dark-gray: hsl(0, 0%, 17%);
+    --vark-gray: hsl(0, 0%, 59%);
+    
+    /* Typography */
+    --font-size: 32px; 
+    
+    /* Font-weight */
+    --weight-700: 700;
+}
+
+/*----------*\
+    #RESET
+\*----------*/
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family: 'Rubik', sans-serif;
+    font-size: var(--font-size);
+}
