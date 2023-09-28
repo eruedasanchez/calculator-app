@@ -123,11 +123,7 @@ plusKey.addEventListener("click", event => {
         if(idxMult !== -1){
             let firstOperandMult = parseInt(keysPressed.slice(idxPlus + 1, idxMult).join(''));
             let secondOperandMult = parseInt(keysPressed.slice(idxMult + 1, keysPressed.length).join(''));
-            console.log(firstOperandMult);
-            console.log(secondOperandMult);
-
             secondOperand = firstOperandMult * secondOperandMult;
-            console.log(secondOperand);
         } 
         
         if(idxDiv !== -1){
@@ -137,9 +133,7 @@ plusKey.addEventListener("click", event => {
         }
         
         result = firstOperand + secondOperand;
-        console.log(result);
         keysPressed = result.toString().split("");
-        console.log(keysPressed);
     }
 
     if(idxMinus !== -1){
@@ -200,11 +194,7 @@ minusKey.addEventListener("click", event => {
         if(idxMult !== -1){
             let firstOperandMult = parseInt(keysPressed.slice(idxMinus + 1, idxMult).join(''));
             let secondOperandMult = parseInt(keysPressed.slice(idxMult + 1, keysPressed.length).join(''));
-            console.log(firstOperandMult);
-            console.log(secondOperandMult);
-
             secondOperand = firstOperandMult * secondOperandMult;
-            console.log(secondOperand);
         } 
         
         if(idxDiv !== -1){
@@ -214,9 +204,7 @@ minusKey.addEventListener("click", event => {
         }
         
         result = firstOperand - secondOperand;
-        console.log(result);
         keysPressed = result.toString().split("");
-        console.log(keysPressed);
     }
 
     if(idxPlus !== -1){
@@ -262,74 +250,145 @@ minusKey.addEventListener("click", event => {
 multiplicationKey.addEventListener("click", event => {
     const multiplication = event.target.value;
 
-    // const idxPlus = keysPressed.findIndex(key => key === PLUS_KEY);
-    // const idxMinus = keysPressed.findIndex(key => key === MINUS_KEY);
+    const idxPlus = keysPressed.findIndex(key => key === PLUS_KEY);
+    const idxMinus = keysPressed.findIndex(key => key === MINUS_KEY);
     const idxMult = keysPressed.findIndex(key => key === MULT_KEY);
     const idxDiv = keysPressed.findIndex(key => key === DIV_KEY);
+    
+    let firstOperand;
+    let secondOperand;
 
-    let firstOperand = [];
-    let secondOperand = [];
-
-    if(idxMult !== -1){
-        firstOperand = keysPressed.slice(0, idxMult).join('');  
-        secondOperand = keysPressed.slice(idxMult + 1, keysPressed.length).join('');
+    if(idxPlus !== -1){
+        firstOperand = keysPressed.slice(0, idxPlus + 1);
+        secondOperand = keysPressed.slice(idxPlus + 1, keysPressed.length).join('');
         
-        result = parseInt(firstOperand) * parseInt(secondOperand);
+        if(idxMult !== -1){
+            let firstOperandMult = keysPressed.slice(idxPlus + 1, idxMult).join('');
+            let secondOperandMult = keysPressed.slice(idxMult + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandMult) * parseInt(secondOperandMult)).toString().split("");
+        } 
         
-        keysPressed = result.toString().split("");
-
-        console.log("encontre un operando multiplicacion en un producto");
+        if(idxDiv !== -1){
+            let firstOperandDiv = keysPressed.slice(idxPlus + 1, idxDiv).join('');
+            let secondOperandDiv = keysPressed.slice(idxDiv + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandDiv) / parseInt(secondOperandDiv)).toString().split("");
+        }
+        
+        result = firstOperand.concat(secondOperand);
+        keysPressed = result;
     }
-    if(idxDiv !== -1){
-        firstOperand = keysPressed.slice(0, idxDiv).join('');  
-        secondOperand = keysPressed.slice(idxDiv + 1, keysPressed.length).join('');
+
+    if(idxMinus !== -1){
+        firstOperand = keysPressed.slice(0, idxMinus + 1);
+        secondOperand = keysPressed.slice(idxMinus + 1, keysPressed.length).join('');
         
-        secondOperand === 0 ? result = ZERO_DIVIDER_ERR : result = parseInt(firstOperand) / parseInt(secondOperand);
+        if(idxMult !== -1){
+            let firstOperandMult = keysPressed.slice(idxMinus + 1, idxMult).join('');
+            let secondOperandMult = keysPressed.slice(idxMult + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandMult) * parseInt(secondOperandMult)).toString().split("");
+        } 
         
-        keysPressed = result.toString().split("");
+        if(idxDiv !== -1){
+            let firstOperandDiv = keysPressed.slice(idxMinus + 1, idxDiv).join('');
+            let secondOperandDiv = keysPressed.slice(idxDiv + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandDiv) / parseInt(secondOperandDiv)).toString().split("");
+        }
         
-        console.log("encontre un operando division en un producto");
+        result = firstOperand.concat(secondOperand);
+        keysPressed = result;
     }
     
-    keysPressed.push(multiplication); 
+    if(idxMinus === -1 && idxPlus === -1 && idxMult !== -1){ 
+        firstOperand = parseInt(keysPressed.slice(0, idxMult).join(''));
+        secondOperand = parseInt(keysPressed.slice(idxMult + 1, keysPressed.length).join(''));
+        
+        result = firstOperand * secondOperand;
+        keysPressed = result.toString().split("");
+    }
+
+    if(idxMinus === -1 && idxPlus === -1 && idxDiv !== -1){
+        firstOperand = parseInt(keysPressed.slice(0, idxDiv).join(''));
+        secondOperand = parseInt(keysPressed.slice(idxDiv + 1, keysPressed.length).join(''));
+
+        secondOperand === 0 ? result = ZERO_DIVIDER_ERR : result = firstOperand / secondOperand;
+        keysPressed = result.toString().split("");
+    }
+    
+    keysPressed.push(multiplication);
     console.log(keysPressed);
 })
 
 divisionKey.addEventListener("click", event => {
     const division = event.target.value;
 
-    // const idxPlus = keysPressed.findIndex(key => key === PLUS_KEY);
-    // const idxMinus = keysPressed.findIndex(key => key === MINUS_KEY);
+    const idxPlus = keysPressed.findIndex(key => key === PLUS_KEY);
+    const idxMinus = keysPressed.findIndex(key => key === MINUS_KEY);
     const idxMult = keysPressed.findIndex(key => key === MULT_KEY);
     const idxDiv = keysPressed.findIndex(key => key === DIV_KEY);
+    
+    let firstOperand;
+    let secondOperand;
 
-    let firstOperand = [];
-    let secondOperand = [];
-
-    if(idxMult !== -1){
-        firstOperand = keysPressed.slice(0, idxMult).join('');  
-        secondOperand = keysPressed.slice(idxMult + 1, keysPressed.length).join('');
+    if(idxPlus !== -1){
+        firstOperand = keysPressed.slice(0, idxPlus + 1);
+        secondOperand = keysPressed.slice(idxPlus + 1, keysPressed.length).join('');
         
-        result = parseInt(firstOperand) * parseInt(secondOperand);
+        if(idxMult !== -1){
+            let firstOperandMult = keysPressed.slice(idxPlus + 1, idxMult).join('');
+            let secondOperandMult = keysPressed.slice(idxMult + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandMult) * parseInt(secondOperandMult)).toString().split("");
+        } 
         
-        keysPressed = result.toString().split("");
-
-        console.log("encontre un operando multiplicacion en una division");
+        if(idxDiv !== -1){
+            let firstOperandDiv = keysPressed.slice(idxPlus + 1, idxDiv).join('');
+            let secondOperandDiv = keysPressed.slice(idxDiv + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandDiv) / parseInt(secondOperandDiv)).toString().split("");
+        }
+        
+        result = firstOperand.concat(secondOperand);
+        keysPressed = result;
     }
-    if(idxDiv !== -1){
-        firstOperand = keysPressed.slice(0, idxDiv).join('');  
-        secondOperand = keysPressed.slice(idxDiv + 1, keysPressed.length).join('');
+
+    if(idxMinus !== -1){
+        firstOperand = keysPressed.slice(0, idxMinus + 1);
+        secondOperand = keysPressed.slice(idxMinus + 1, keysPressed.length).join('');
         
-        secondOperand === 0 ? result = ZERO_DIVIDER_ERR : result = parseInt(firstOperand) / parseInt(secondOperand);
+        if(idxMult !== -1){
+            let firstOperandMult = keysPressed.slice(idxMinus + 1, idxMult).join('');
+            let secondOperandMult = keysPressed.slice(idxMult + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandMult) * parseInt(secondOperandMult)).toString().split("");
+        } 
         
-        keysPressed = result.toString().split("");
+        if(idxDiv !== -1){
+            let firstOperandDiv = keysPressed.slice(idxMinus + 1, idxDiv).join('');
+            let secondOperandDiv = keysPressed.slice(idxDiv + 1, keysPressed.length).join('');
+            secondOperand = (parseInt(firstOperandDiv) / parseInt(secondOperandDiv)).toString().split("");
+        }
         
-        console.log("encontre un operando division en una division");
+        result = firstOperand.concat(secondOperand);
+        keysPressed = result;
     }
     
-    keysPressed.push(division); 
+    if(idxMinus === -1 && idxPlus === -1 && idxMult !== -1){ 
+        firstOperand = parseInt(keysPressed.slice(0, idxMult).join(''));
+        secondOperand = parseInt(keysPressed.slice(idxMult + 1, keysPressed.length).join(''));
+        
+        result = firstOperand * secondOperand;
+        keysPressed = result.toString().split("");
+    }
+
+    if(idxMinus === -1 && idxPlus === -1 && idxDiv !== -1){
+        firstOperand = parseInt(keysPressed.slice(0, idxDiv).join(''));
+        secondOperand = parseInt(keysPressed.slice(idxDiv + 1, keysPressed.length).join(''));
+
+        secondOperand === 0 ? result = ZERO_DIVIDER_ERR : result = firstOperand / secondOperand;
+        keysPressed = result.toString().split("");
+    }
+    
+    keysPressed.push(division);
     console.log(keysPressed);
 })
+
 
 resetKey.addEventListener("click", event => {
     keysPressed = [];
