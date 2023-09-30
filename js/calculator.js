@@ -1,10 +1,9 @@
-const operators = {PLUS: '+', MINUS: '-', MULT: '*', DIV: '/'};
+const op = {add: '+', subtract: '-', multiply: '*', divide: '/'};
 
 const ZERO_DIVIDER_ERR = "Error. Division por 0";
 
 let keysPressed = [];
 let result = 0;
-
 
 const screen = document.getElementById('screen');
 
@@ -57,220 +56,123 @@ showNumbers(numberSelectors);
     #OPERATOR EVENTS
 \*----------------------*/
 
-const findOperatorIndexes = (keysArr, operators) => {
-    const plus = keysArr.findIndex(key => key === operators.PLUS);
-    const minus = keysArr.findIndex(key => key ===  operators.MINUS);
-    const mult = keysArr.findIndex(key => key === operators.MULT);
-    const div = keysArr.findIndex(key => key === operators.DIV);
+const findOperationsIndexes = (keysArr, operations) => {
+    const plus = keysArr.findIndex(key => key === operations.add);
+    const minus = keysArr.findIndex(key => key ===  operations.subtract);
+    const mult = keysArr.findIndex(key => key === operations.multiply);
+    const div = keysArr.findIndex(key => key === operations.divide);
 
     const indexes = {plus, minus, mult, div};
     return indexes;
 }
 
-const solve = (operator, operators, keysArr, operatorIdxs) => {
-    let res;
-    let operatorIdx = operatorIdxs.plus;
+const calculateInternalOp = (idxExternalOp, idxInternalOp) => {
+    let firstInternalOperand = parseInt(keysPressed.slice(idxExternalOp + 1, idxInternalOp).join(''));
+    let secondInternalOperand = parseInt(keysPressed.slice(idxInternalOp + 1, keysPressed.length).join(''));
+    let secondOperand = firstInternalOperand * secondInternalOperand;
+    
+    if(keysPressed[idxInternalOp] === op.divide) secondOperand = firstInternalOperand / secondInternalOperand;
 
-    if(operator === operators.MINUS) operatorIdx = operatorIdxs.minus;
-    
-    let firstOperand = parseInt(keysArr.slice(0, operatorIdx).join(''));
-    let secondOperand = parseInt(keysArr.slice(operatorIdx + 1, keysArr.length).join(''));
-    
-    if(operatorIdxs.mult !== -1){
-        let firstOperandMult = parseInt(keysArr.slice(operatorIdx + 1, operatorIdxs.mult).join(''));
-        let secondOperandMult = parseInt(keysArr.slice(operatorIdxs.mult + 1, keysArr.length).join(''));
-        secondOperand = firstOperandMult * secondOperandMult;
-    } 
-    
-    if(operatorIdxs.div !== -1){
-        let firstOperandDiv = keysArr.slice(operatorIdx + 1, operatorIdxs.div).join('');
-        let secondOperandDiv = keysArr.slice(operatorIdxs.div + 1, keysPressed.length).join('');
-        secondOperand = parseInt(firstOperandDiv) / parseInt(secondOperandDiv);
-    }
-    
-    operator === operators.PLUS ? res = firstOperand + secondOperand : res = firstOperand - secondOperand;
-    keysArr = res.toString().split("");
-    
-    return {res, keysArr};
+    return secondOperand;
 }
 
-const resolve = (operator, operators, keysArr, operatorIdxs) => {
-    let res;
-    let operatorIdx = operatorIdxs.plus;
+const resolve = (idxExternalOp, operatorIndexes) => {
+    let res = 0;
+    let operatorIdx = idxExternalOp;
+    let firstOperand = parseInt(keysPressed.slice(0, operatorIdx).join(''));
+    let secondOperand = parseInt(keysPressed.slice(operatorIdx + 1, keysPressed.length).join(''));
 
-    if(operator === operators.MINUS) operatorIdx = operatorIdxs.minus;
-    
-    let firstOperand = keysArr.slice(0, operatorIdx + 1);
-    let secondOperand = keysArr.slice(operatorIdx + 1, keysArr.length).join('');
-    
-    if(operatorIdxs.mult !== -1){
-        let firstOperandMult = keysArr.slice(operatorIdx + 1, operatorIdxs.mult).join('');
-        let secondOperandMult = keysArr.slice(operatorIdxs.mult + 1, keysArr.length).join('');
-        secondOperand = (parseInt(firstOperandMult) * parseInt(secondOperandMult)).toString().split("");
+    if((keysPressed[operatorIdx] === op.add || keysPressed[operatorIdx] === op.subtract) && operatorIndexes.mult !== -1){
+        secondOperand = calculateInternalOp(operatorIdx, operatorIndexes.mult);
     }
-    
-    if(operatorIdxs.div !== -1){
-        let firstOperandDiv = keysArr.slice(operatorIdx + 1, operatorIdxs.div).join('');
-        let secondOperandDiv = keysArr.slice(operatorIdxs.div + 1, keysArr.length).join('');
-        secondOperand = (parseInt(firstOperandDiv) / parseInt(secondOperandDiv)).toString().split("");
-    }
-    
-    res = secondOperand;
-    keysArr = firstOperand.concat(secondOperand);
 
-    return {res, keysArr};
+    if((keysPressed[operatorIdx] === op.add || keysPressed[operatorIdx] === op.subtract) && operatorIndexes.div !== -1){
+        secondOperand = calculateInternalOp(operatorIdx, operatorIndexes.div);
+    }
+
+    if(keysPressed[operatorIdx] === op.add) res = firstOperand + secondOperand;
+
+    if(keysPressed[operatorIdx] === op.subtract) res = firstOperand - secondOperand;
+
+    if(keysPressed[operatorIdx] === op.multiply) res = firstOperand * secondOperand;
+
+    if(keysPressed[operatorIdx] === op.divide) res = firstOperand / secondOperand;
+    
+    keysPressed = res.toString().split("");
 }
 
-const solveSimple = (operator, operators, keysArr, operatorIdxs) =>  {
-    let res;
-    let operatorIdx = operatorIdxs.mult;
+const resolveInternalOp = (idxExternalOp, idxInternalOp) => {
+    let firstOperand = keysPressed.slice(0, idxExternalOp + 1);
+    let res = calculateInternalOp(idxExternalOp, idxInternalOp);
+    
+    let secondOperand = res.toString().split("");
+    keysPressed = firstOperand.concat(secondOperand);
+}
 
-    if(operator === operators.DIV) operatorIdx = operatorIdxs.div;
-    
-    const firstOperand = parseInt(keysArr.slice(0, operatorIdx).join(''));
-    const secondOperand = parseInt(keysArr.slice(operatorIdx + 1, keysArr.length).join(''));
-    
-    if(operator === operators.DIV){
-        secondOperand === 0 ? res = ZERO_DIVIDER_ERR : res = firstOperand / secondOperand;
-    } else {
-        res = firstOperand * secondOperand;
+const calculate = (operation, operatorIndexes) => {
+    if(operation === op.add || operation === op.subtract){
+        if(operatorIndexes.plus !== -1) resolve(operatorIndexes.plus, operatorIndexes);
+        
+        if(operatorIndexes.minus !== -1) resolve(operatorIndexes.minus, operatorIndexes);
+        
     }
     
-    keysArr = res.toString().split("");
+    if(operation === op.multiply || operation === op.divide){
+        if(operatorIndexes.plus !== -1 && operatorIndexes.mult !== -1){
+            resolveInternalOp(operatorIndexes.plus, operatorIndexes.mult);
+        }
+
+        if(operatorIndexes.plus !== -1 && operatorIndexes.div !== -1){
+            resolveInternalOp(operatorIndexes.plus, operatorIndexes.div);
+        }
+
+        if(operatorIndexes.minus !== -1 && operatorIndexes.mult !== -1){
+            resolveInternalOp(operatorIndexes.minus, operatorIndexes.mult);
+        }
+
+        if(operatorIndexes.minus !== -1 && operatorIndexes.div !== -1){
+            resolveInternalOp(operatorIndexes.minus, operatorIndexes.div);
+        }
+    }
     
-    return {res, keysArr};
+    if(operatorIndexes.plus === -1 && operatorIndexes.minus === -1 && operatorIndexes.mult !== -1){
+        resolve(operatorIndexes.mult, operatorIndexes);
+    }
+    
+    if(operatorIndexes.plus === -1 && operatorIndexes.minus === -1 && operatorIndexes.div !== -1){
+        resolve(operatorIndexes.div, operatorIndexes);
+    }
+
+    keysPressed.push(operation);
+    console.log(keysPressed);
 }
 
 plusKey.addEventListener("click", event => {
     const plus = event.target.value;
     
-    const operatorIdxs = findOperatorIndexes(keysPressed, operators);
-    
-    if(operatorIdxs.plus !== -1){
-        const operationInfoPlus = solve('+', operators, keysPressed, operatorIdxs);
-        result = operationInfoPlus.res;
-        keysPressed = operationInfoPlus.keysArr;
-    } 
-    
-    if(operatorIdxs.minus !== -1){
-        const operationInfoMinus = solve('-', operators, keysPressed, operatorIdxs);
-        result = operationInfoMinus.res;
-        keysPressed = operationInfoMinus.keysArr;
-    }
-    
-    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.mult !== -1){
-        const operationInfoMult = solveSimple('*', operators, keysPressed, operatorIdxs);
-        result = operationInfoMult.res;
-        keysPressed = operationInfoMult.keysArr;
-    }
-
-    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.div !== -1){ 
-        const operationInfoDiv = solveSimple('/', operators, keysPressed, operatorIdxs);
-        result = operationInfoDiv.res;
-        keysPressed = operationInfoDiv.keysArr;
-    }
-    
-    keysPressed.push(plus);
-    console.log(keysPressed);
+    const operatorIdxs = findOperationsIndexes(keysPressed, op);
+    calculate(plus, operatorIdxs);
 })
 
 minusKey.addEventListener("click", event => {
     const minus = event.target.value;
 
-    const operatorIdxs = findOperatorIndexes(keysPressed, operators);
-    
-    if(operatorIdxs.plus !== -1){
-        const operationInfoPlus = solve('+', operators, keysPressed, operatorIdxs);
-        result = operationInfoPlus.res;
-        keysPressed = operationInfoPlus.keysArr;
-    }
-
-    if(operatorIdxs.minus !== -1){
-        const operationInfoMinus = solve('-', operators, keysPressed, operatorIdxs);
-        result = operationInfoMinus.res;
-        keysPressed = operationInfoMinus.keysArr;
-    }
-    
-    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.mult !== -1){
-        const operationInfoMult = solveSimple('*', operators, keysPressed, operatorIdxs);
-        result = operationInfoMult.res;
-        keysPressed = operationInfoMult.keysArr;
-    }
-
-    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.div !== -1){ 
-        const operationInfoDiv = solveSimple('/', operators, keysPressed, operatorIdxs);
-        result = operationInfoDiv.res;
-        keysPressed = operationInfoDiv.keysArr;
-    }
-    
-    keysPressed.push(minus);
-    console.log(keysPressed);
+    const operatorIdxs = findOperationsIndexes(keysPressed, op);
+    calculate(minus, operatorIdxs);
 })
 
 multiplicationKey.addEventListener("click", event => {
     const multiplication = event.target.value;
 
-    const operatorIdxs = findOperatorIndexes(keysPressed, operators);
-    
-    if(operatorIdxs.plus !== -1){
-        const operationInfoPlus = resolve('+', operators, keysPressed, operatorIdxs);
-        result = operationInfoPlus.res;
-        keysPressed = operationInfoPlus.keysArr;
-    }
-
-    if(operatorIdxs.minus !== -1){
-        const operationInfoMinus = resolve('-', operators, keysPressed, operatorIdxs);
-        result = operationInfoMinus.res;
-        keysPressed = operationInfoMinus.keysArr;
-    }
-    
-    if(operatorIdxs.minus === -1 && operatorIdxs.plus === -1 && operatorIdxs.mult !== -1){ 
-        const operationInfoMult = solveSimple('*', operators, keysPressed, operatorIdxs);
-        result = operationInfoMult.res;
-        keysPressed = operationInfoMult.keysArr;
-    }
-
-    if(operatorIdxs.minus === -1 && operatorIdxs.plus === -1 && operatorIdxs.div !== -1){
-        const operationInfoDiv = solveSimple('/', operators, keysPressed, operatorIdxs);
-        result = operationInfoDiv.res;
-        keysPressed = operationInfoDiv.keysArr;
-    }
-    
-    keysPressed.push(multiplication);
-    console.log(keysPressed);
+    const operatorIdxs = findOperationsIndexes(keysPressed, op);
+    calculate(multiplication, operatorIdxs);
 })
 
 divisionKey.addEventListener("click", event => {
     const division = event.target.value;
 
-    const operatorIdxs = findOperatorIndexes(keysPressed, operators);
-    
-    if(operatorIdxs.plus !== -1){
-        const operationInfoPlus = resolve('+', operators, keysPressed, operatorIdxs);
-        result = operationInfoPlus.res;
-        keysPressed = operationInfoPlus.keysArr;
-    }
-
-    if(operatorIdxs.minus !== -1){
-        const operationInfoMinus = resolve('-', operators, keysPressed, operatorIdxs);
-        result = operationInfoMinus.res;
-        keysPressed = operationInfoMinus.keysArr;
-    }
-    
-    if(operatorIdxs.minus === -1 && operatorIdxs.plus === -1 && operatorIdxs.mult !== -1){ 
-        const operationInfoMult = solveSimple('*', operators, keysPressed, operatorIdxs);
-        result = operationInfoMult.res;
-        keysPressed = operationInfoMult.keysArr;
-    }
-    
-    if(operatorIdxs.minus === -1 && operatorIdxs.plus === -1 && operatorIdxs.div !== -1){
-        const operationInfoDiv = solveSimple('/', operators, keysPressed, operatorIdxs);
-        result = operationInfoDiv.res;
-        keysPressed = operationInfoDiv.keysArr;
-    }
-    
-    keysPressed.push(division);
-    console.log(keysPressed);
+    const operatorIdxs = findOperationsIndexes(keysPressed, op);
+    calculate(division, operatorIdxs);
 })
 
 resetKey.addEventListener("click", () => {
@@ -282,4 +184,3 @@ deleteKey.addEventListener("click", () => {
     keysPressed.pop();
     console.log(keysPressed);
 })
-        
