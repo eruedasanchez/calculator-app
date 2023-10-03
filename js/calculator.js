@@ -44,7 +44,8 @@ const equalKey = document.getElementById('equal');
 const showNumbers = selectors => {
     for(const selector of selectors){
         selector.addEventListener("click", event => {
-            keysPressed.push(event.target.value); 
+            keysPressed.push(event.target.value);
+            screen.innerText = keysPressed.join(''); 
             console.log(keysPressed);
         })
     }
@@ -97,6 +98,8 @@ const resolve = (idxExternalOp, operatorIndexes) => {
     if(keysPressed[operatorIdx] === op.multiply) res = firstOperand * secondOperand;
 
     if(keysPressed[operatorIdx] === op.divide) res = firstOperand / secondOperand;
+
+    screen.innerText = res;
     
     keysPressed = res.toString().split("");
 }
@@ -110,12 +113,23 @@ const resolveInternalOp = (idxExternalOp, idxInternalOp) => {
 }
 
 const calculate = (operation, operatorIndexes) => {
+
+    if(keysPressed[keysPressed.length - 1] === op.add || 
+        keysPressed[keysPressed.length - 1] === op.subtract || 
+        keysPressed[keysPressed.length - 1] === op.multiply || 
+        keysPressed[keysPressed.length - 1] === op.divide){
+        keysPressed.pop();
+        keysPressed.push(operation);
+        console.log(keysPressed);
+        return;
+    } 
+    
     if(operation === op.add || operation === op.subtract){
         if(operatorIndexes.plus !== -1) resolve(operatorIndexes.plus, operatorIndexes);
         
         if(operatorIndexes.minus !== -1) resolve(operatorIndexes.minus, operatorIndexes);
         
-    }
+    } 
     
     if(operation === op.multiply || operation === op.divide){
         if(operatorIndexes.plus !== -1 && operatorIndexes.mult !== -1){
@@ -133,11 +147,11 @@ const calculate = (operation, operatorIndexes) => {
         if(operatorIndexes.minus !== -1 && operatorIndexes.div !== -1){
             resolveInternalOp(operatorIndexes.minus, operatorIndexes.div);
         }
-    }
+    } 
     
     if(operatorIndexes.plus === -1 && operatorIndexes.minus === -1 && operatorIndexes.mult !== -1){
         resolve(operatorIndexes.mult, operatorIndexes);
-    }
+    } 
     
     if(operatorIndexes.plus === -1 && operatorIndexes.minus === -1 && operatorIndexes.div !== -1){
         resolve(operatorIndexes.div, operatorIndexes);
@@ -177,10 +191,90 @@ divisionKey.addEventListener("click", event => {
 
 resetKey.addEventListener("click", () => {
     keysPressed = [];
+    screen.innerText = '0';
     console.log(keysPressed);
 })
 
 deleteKey.addEventListener("click", () => {
     keysPressed.pop();
+    screen.innerText = keysPressed.join('');
     console.log(keysPressed);
+})
+
+const calculateBasicOperation = operatorIdx => {
+    let res = 0;
+    let firstOperand = parseInt(keysPressed.slice(0, operatorIdx).join(''));
+    let secondOperand = parseInt(keysPressed.slice(operatorIdx + 1, keysPressed.length).join(''));
+
+    if(keysPressed[operatorIdx] === op.add) res = firstOperand + secondOperand;
+
+    if(keysPressed[operatorIdx] === op.subtract) res = firstOperand - secondOperand;
+
+    if(keysPressed[operatorIdx] === op.multiply) res = firstOperand * secondOperand;
+
+    if(keysPressed[operatorIdx] === op.divide) res = firstOperand / secondOperand;
+    
+    return res;
+}
+
+equalKey.addEventListener("click", () => {
+    console.log("veo lo que hay en teclas presionadas", keysPressed);
+    let res = 0;
+
+    const operatorIdxs = findOperationsIndexes(keysPressed, op);
+
+    console.log(operatorIdxs);
+
+    if(operatorIdxs.plus !== -1){
+        console.log("entro en una suma comun a priori")
+        let firstOperand = parseInt(keysPressed.slice(0, operatorIdxs.plus).join(''));
+        let secondOperand = parseInt(keysPressed.slice(operatorIdxs.plus + 1, keysPressed.length).join(''));
+
+        if(operatorIdxs.mult !== -1){
+            console.log("ahora, entrando a combinada suma y multi");
+            secondOperand = calculateInternalOp(operatorIdxs.plus, operatorIdxs.mult);
+        }
+
+        if(operatorIdxs.div !== -1){
+            console.log("ahora, entrando a combinada suma y div");
+            secondOperand = calculateInternalOp(operatorIdxs.plus, operatorIdxs.div);
+        }
+
+        res = firstOperand + secondOperand;
+    }
+    
+    if(operatorIdxs.minus !== -1){
+        console.log("entrando a priori en una resta comun");
+        let firstOperand = parseInt(keysPressed.slice(0, operatorIdxs.minus).join(''));
+        let secondOperand = parseInt(keysPressed.slice(operatorIdxs.minus + 1, keysPressed.length).join(''));
+
+        if(operatorIdxs.mult !== -1){
+            console.log("ahora, entrando a combinada suma y multi");
+            secondOperand = calculateInternalOp(operatorIdxs.minus, operatorIdxs.mult);
+        }
+
+        if(operatorIdxs.div !== -1){
+            console.log("ahora, entrando a combinada suma y div");
+            secondOperand = calculateInternalOp(operatorIdxs.minus, operatorIdxs.div);
+        }
+
+        res = firstOperand - secondOperand;
+    }
+    
+    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.mult !== -1){
+        console.log("entrando a mult comun");
+        res = calculateBasicOperation(operatorIdxs.mult);
+    }
+
+    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.div !== -1){
+        console.log("entrando a div comun");
+        res = calculateBasicOperation(operatorIdxs.div);
+    }
+    
+    screen.innerText = res;
+    console.log("res", res);
+    
+    keysPressed = res.toString().split("");
+    console.log("keypressed", keysPressed);
+
 })
