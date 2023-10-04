@@ -12,7 +12,7 @@
   <br/>
   Responsive for all devices, mobile first design. Build using HTML, CSS & JavaScript.
   <br/>
-  <a href="https://eruedasanchez.github.io/IP-address-tracker "><strong>➥ Live Demo</strong></a>
+  <a href="https://eruedasanchez.github.io/calculator-app/"><strong>➥ Live Demo</strong></a>
 
 </div>
 
@@ -46,13 +46,13 @@ To run **Time Tracking Dashboard** locally, run this command on your git bash:
 Linux and macOS:
 
 ```bash
-sudo git clone https://github.com/eruedasanchez/IP-address-tracker
+sudo git clone https://github.com/eruedasanchez/calculator-app
 ```
 
 Windows:
 
 ```bash
-git clone https://github.com/eruedasanchez/IP-address-tracker
+git clone https://github.com/eruedasanchez/calculator-app
 ```
 
 ### Contact
