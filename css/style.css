@@ -107,6 +107,16 @@ body{
     font-size: var(--font-size);
 }
 
+button{
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+button:is(:hover, :focus){
+    cursor: pointer;
+}
+
 /*----------------------*\
     #BACKGROUND THEMES
 \*----------------------*/
@@ -207,10 +217,11 @@ body{
     width: 14px;
     height: 14px;
     border-radius: 50%;
+    border: 1px solid var(--white);
 }
 
 .circle.theme-1{
-    background-color: var(--red);
+    background-color: var(--red); 
 }
 
 .circle.theme-2{
@@ -219,10 +230,6 @@ body{
 
 .circle.theme-3{
     background-color: var(--pure-cyan);
-}
-
-.circle.theme-1.hidden, .circle.theme-2.hidden, .circle.theme-3.hidden{
-    visibility: hidden;
 }
 
 /*--------------*\
@@ -311,10 +318,6 @@ body{
     background-color: var(--very-dark-violet);
     color: var(--light-yellow);
     box-shadow: 0 6px 2px -2px var(--dark-magenta);
-}
-
-.key:is(:hover, :focus){
-    cursor: pointer;
 }
 
 .container-keys__reset-equal{

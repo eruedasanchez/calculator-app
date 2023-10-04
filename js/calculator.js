@@ -25,6 +25,73 @@ const nineKey  = document.getElementById('nine');
 const numberSelectors = [zeroKey, oneKey, twoKey, threeKey, fourKey, fiveKey, sixKey, sevenKey, eightKey, nineKey];
 
 /*----------------------*\
+    #THEME SELECTORS
+\*----------------------*/
+
+const themeOneBtn = document.getElementById('sel-theme-1');
+const themeTwoBtn = document.getElementById('sel-theme-2');
+const themeThreeBtn = document.getElementById('sel-theme-3');
+
+/*----------------------------*\
+    #COLORS THEME SELECTORS 
+\*----------------------------*/
+
+const circleBtns = document.querySelectorAll('.circle');
+const keyBtns = document.querySelectorAll('.key');
+
+const backgroundTheme = document.getElementById('bg-theme');
+const brandTheme = document.querySelector('.brand');
+const textTheme = document.querySelector('.theme__text');
+const numberTheme = document.querySelector('.theme__numbers-number');
+const selectorTheme = document.querySelector('.theme__numbers-selectors');
+const backgroundDisplay = document.querySelector('.container-display');
+const containerKeys = document.querySelector('.container-keys');
+
+const arrThemeSelectors = [backgroundTheme, brandTheme, textTheme, numberTheme, selectorTheme, backgroundDisplay, screen, containerKeys];
+
+/*---------------------*\
+    #THEME FUNCTIONS 
+\*---------------------*/
+
+const applyTheme = (numberTheme, arrThemeSelectors) => {
+    for(const selector of arrThemeSelectors){
+        for(let n = 1; n < 4; n++){
+            n === numberTheme ? selector.classList.add(`theme-${n}`) : selector.classList.remove(`theme-${n}`);
+        }
+    }
+    
+    keyBtns.forEach(key => {
+        for(let n = 1; n < 4; n++){
+            n === numberTheme ? key.classList.add(`theme-${n}`) : key.classList.remove(`theme-${n}`);
+        }
+    });
+}
+
+themeOneBtn.addEventListener("click", () => {
+    applyTheme(1, arrThemeSelectors);
+})
+
+themeTwoBtn.addEventListener("click", () => {
+    applyTheme(2, arrThemeSelectors);
+})
+
+themeThreeBtn.addEventListener("click", () => {
+    applyTheme(3, arrThemeSelectors);
+})
+
+circleBtns.forEach((circleBtn, index) => {
+    circleBtn.addEventListener("click", () => {
+        circleBtns.forEach(btn => {
+            btn.classList.remove("theme-1");
+            btn.classList.remove("theme-2");
+            btn.classList.remove("theme-3");
+        })
+
+        circleBtns[index].classList.add(`theme-${index+1}`);
+    })
+});
+
+/*----------------------*\
     #OPERATOR SELECTORS
 \*----------------------*/
 
@@ -53,9 +120,9 @@ const showNumbers = selectors => {
 
 showNumbers(numberSelectors);
 
-/*----------------------*\
-    #OPERATOR EVENTS
-\*----------------------*/
+/*------------------------*\
+    #OPERATION FUNCTIONS
+\*------------------------*/
 
 const findOperationsIndexes = (keysArr, operations) => {
     const plus = keysArr.findIndex(key => key === operations.add);
