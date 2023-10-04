@@ -138,6 +138,7 @@ button:is(:hover, :focus){
 \*-----------------*/
 
 .container-calculator{
+    max-width: 425px;
     display: flex;
     flex-direction: column;
     row-gap: 33px;
@@ -373,4 +374,13 @@ button:is(:hover, :focus){
     box-shadow: 0 6px 2px -2px var(--soft-cyan);
 }
 
+/*------------------*\
+    #MEDIA QUERIES 
+\*------------------*/
+
+@media(min-width:500px){
+    .container-calculator{
+        margin: 6% auto;
+    } 
+}
 
