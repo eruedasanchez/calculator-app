@@ -113,7 +113,6 @@ const showNumbers = selectors => {
         selector.addEventListener("click", event => {
             keysPressed.push(event.target.value);
             screen.innerText = keysPressed.join(''); 
-            console.log(keysPressed);
         })
     }
 }
@@ -143,7 +142,6 @@ const calculate = (operation, operatorIdxs) => {
         keysPressed[keysPressed.length - 1] === op.divide){
         keysPressed.pop();
         keysPressed.push(operation);
-        console.log(keysPressed);
         return;
     }
     
@@ -160,7 +158,6 @@ const calculate = (operation, operatorIdxs) => {
     (keysPressed[idxExternalOp] === op.add || keysPressed[idxExternalOp] === op.subtract))){
         // No hay operadores o falta completar el segundo operador interno
         keysPressed.push(operation);
-        console.log(keysPressed);
         return;
     }
 
@@ -181,7 +178,6 @@ const calculate = (operation, operatorIdxs) => {
                 res = ZERO_DIVIDER_ERR;
                 screen.innerText = res;
                 keysPressed = [];
-                console.log(keysPressed);
                 return;
             } else {
                 secondOperand = firstOpInternal / secondOpInternal;
@@ -197,8 +193,6 @@ const calculate = (operation, operatorIdxs) => {
             
             keysPressed = (firstOperand.concat(keysPressed[idxExternalOp])).concat(secondOperand.toString().split(""));
             keysPressed.push(operation);
-            console.log(keysPressed);
-            
             return res;
         }
     }
@@ -214,7 +208,6 @@ const calculate = (operation, operatorIdxs) => {
             res = ZERO_DIVIDER_ERR;
             screen.innerText = res;
             keysPressed = [];
-            console.log(keysPressed);
             return;
         } else {
             res = firstOperand / secondOperand;
@@ -225,8 +218,7 @@ const calculate = (operation, operatorIdxs) => {
     
     keysPressed = res.toString().split("");
     keysPressed.push(operation);
-    console.log(keysPressed);
-
+    
     return res;
 }
 
@@ -261,19 +253,44 @@ divisionKey.addEventListener("click", event => {
 resetKey.addEventListener("click", () => {
     keysPressed = [];
     screen.innerText = '0';
-    console.log(keysPressed);
 })
 
 deleteKey.addEventListener("click", () => {
     keysPressed.pop();
     screen.innerText = keysPressed.join('');
-    console.log(keysPressed);
 })
+
+const compute = (operation, operand) => {
+    let result = 0;
+
+    if(operation === op.add) result = 2 * operand;
+    if(operation === op.subtract) result = operand - operand;
+    if(operation === op.multiply) result = operand * operand;
+    if(operation === op.divide) result = operand / operand;
+
+    return result;
+}
+
+const resolve = (operation, operand, idxExternalOp, operatorIdxs) => {
+    let result = 0;
+
+    if(idxExternalOp === keysPressed.length - 1){
+        result = compute(operation, operand);
+    } else {
+        result = calculate(operation, operatorIdxs);
+    }
+    
+    screen.innerText = result;
+    
+    keysPressed = result.toString().split("");
+    keysPressed.push(operation);
+    
+    return result;
+}
 
 equalKey.addEventListener("click", () => {
     let result = 0;
-    console.log("veo lo que hay en teclas presionadas", keysPressed);
-
+    
     const operatorIdxs = findOperationsIndexes(keysPressed, op);
     
     const operatorIndexes = Object.values(operatorIdxs);
@@ -282,22 +299,23 @@ equalKey.addEventListener("click", () => {
     
     let idxExternalOp = activeOperators[0];
 
-    if(keysPressed[idxExternalOp] === op.add) result = calculate(op.add, operatorIdxs);
+    let firstOperand = parseInt(keysPressed.slice(0, idxExternalOp).join(''));
+
+    if(keysPressed[idxExternalOp] === op.add){
+        result = resolve(op.add, firstOperand, idxExternalOp, operatorIdxs);
+    }
     
-    if(keysPressed[idxExternalOp] === op.subtract) result = calculate(op.subtract, operatorIdxs);
+    if(keysPressed[idxExternalOp] === op.subtract){
+        result = resolve(op.subtract, firstOperand, idxExternalOp, operatorIdxs);
+    } 
     
-    if(keysPressed[idxExternalOp] === op.multiply) result = calculate(op.multiply, operatorIdxs);
+    if(keysPressed[idxExternalOp] === op.multiply){
+        result = resolve(op.multiply, firstOperand, idxExternalOp, operatorIdxs);
+    } 
     
-    if(keysPressed[idxExternalOp] === op.divide) result = calculate(op.divide, operatorIdxs);
+    if(keysPressed[idxExternalOp] === op.divide){
+        result = resolve(op.divide, firstOperand, idxExternalOp, operatorIdxs);
+    } 
 })
-
-
-
-
-
-
-
-
-
 
 
