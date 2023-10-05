@@ -292,77 +292,7 @@ equalKey.addEventListener("click", () => {
 })
 
 
-// Casos a resolver
 
-/* 
-
-suma 
-1 + 1 +       -> 2 +  (OK)
-1 - 1 +       -> 0 +  (OK)
-1 * 1 +       -> 1 +  (OK)
-1 / 1 +       -> 1 +  (OK)
-1 / 0 +       -> error (OK)
-1 + 2 * 1 +   -> 3 + (OK)
-1 - 2 * 1 +   -> -1 + (OK)
-1 + 2 / 1 +   -> 3 + (OK)
-1 - 2 / 1 +   -> -1 + (OK)
-1 + 2 / 0 +   -> error (OK)
-1 - 2 / 0 +   -> error (OK)
-
-resta 
-1 + 1 -       -> 2 -    (OK)
-1 - 1 -       -> 0 -    (OK)
-1 * 1 -       -> 1 -    (OK)
-1 / 1 -       -> 1 -    (OK)
-1 / 0 -       -> error  (OK)
-1 + 2 * 1 -   -> 3 -    (OK)
-1 - 2 * 1 -   -> -1 -   (OK)
-1 + 2 / 1 -   -> 3 -    (OK)
-1 - 2 / 1 -   -> -1 -   (OK)
-1 + 2 / 0 -   -> error  (OK)
-1 - 2 / 0 -   -> error  (OK)
-
-multiplicacion
-1 + 1 *       -> pasa al caso suma,resta o [+,*]   (OK)
-1 - 1 *       -> pasa al caso suma,resta o [-,*]   (OK)
-1 * 1 *       -> 1 *      (OK)
-1 / 1 *       -> 1 *      (OK)
-1 / 0 *       -> error    (OK)
-1 + 2 * 1 *   -> 1 + 2 *  (OK)
-1 - 2 * 1 *   -> 1 - 2 *  (OK)
-1 + 2 / 1 *   -> 1 + 2 *  (OK)
-1 - 2 / 1 *   -> 1 - 2 *  (OK)
-1 + 2 / 0 *   -> error    (OK)
-1 - 2 / 0 *   -> error    (OK)
-
-division
-1 + 1 /       -> pasa al caso suma,resta o [+,/]    (OK)
-1 - 1 /       -> pasa al caso suma,resta o [-,/]   (OK)
-1 * 1 /       -> 1 /   (OK)
-1 / 1 /       -> 1 /   (OK)
-1 / 0 /       -> error   (OK)
-1 + 2 * 1 /   -> 1 + 2 /     (OK)
-1 - 2 * 1 /   -> 1 - 2 /   (OK)
-1 + 2 / 1 /   -> 1 + 2 /   (OK)
-1 - 2 / 1 /   -> 1 - 2 /   (OK)
-1 + 2 / 0 /   -> error   (OK)
-1 - 2 / 0 /   -> error   (OK)
-
-*/
-
-// combinaciones posibles
-
-// caso 1: tengo como operador externo (+,-) y clickeo sobre la * o /. No hago nada 
-
-// caso 2: tengo como op externo (+,-) y ya tengo como op interno * o / (vino del caso 1):
-
-// caso 2.a: si clickeo sobre + o -, resuelvo la * o / y luego la + o - y envio el res mas (+,-)
-// caso 2.b: si clickeo sobre * o /, resuelvo la * o / y luego envio el arreglo desde el principio
-// hasta el operador externo concatenado con el res de la op interna
-
-// caso 3: cualquier otra combinacion. realizo simplemente la operacion entre dos numeros  
-
-// calculatee = (multiplication, operatorIdxs)
 
 
 
