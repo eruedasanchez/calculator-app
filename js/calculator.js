@@ -1,6 +1,6 @@
 const op = {add: '+', subtract: '-', multiply: '*', divide: '/'};
 
-const ZERO_DIVIDER_ERR = "Error. Division por 0";
+const ZERO_DIVIDER_ERR = "Error";
 
 let keysPressed = [];
 let result = 0;
@@ -134,52 +134,8 @@ const findOperationsIndexes = (keysArr, operations) => {
     return indexes;
 }
 
-const calculateInternalOp = (idxExternalOp, idxInternalOp) => {
-    let firstInternalOperand = parseInt(keysPressed.slice(idxExternalOp + 1, idxInternalOp).join(''));
-    let secondInternalOperand = parseInt(keysPressed.slice(idxInternalOp + 1, keysPressed.length).join(''));
-    let secondOperand = firstInternalOperand * secondInternalOperand;
-    
-    if(keysPressed[idxInternalOp] === op.divide) secondOperand = firstInternalOperand / secondInternalOperand;
-
-    return secondOperand;
-}
-
-const resolve = (idxExternalOp, operatorIndexes) => {
+const calculate = (operation, operatorIdxs) => {
     let res = 0;
-    let operatorIdx = idxExternalOp;
-    let firstOperand = parseInt(keysPressed.slice(0, operatorIdx).join(''));
-    let secondOperand = parseInt(keysPressed.slice(operatorIdx + 1, keysPressed.length).join(''));
-
-    if((keysPressed[operatorIdx] === op.add || keysPressed[operatorIdx] === op.subtract) && operatorIndexes.mult !== -1){
-        secondOperand = calculateInternalOp(operatorIdx, operatorIndexes.mult);
-    }
-
-    if((keysPressed[operatorIdx] === op.add || keysPressed[operatorIdx] === op.subtract) && operatorIndexes.div !== -1){
-        secondOperand = calculateInternalOp(operatorIdx, operatorIndexes.div);
-    }
-
-    if(keysPressed[operatorIdx] === op.add) res = firstOperand + secondOperand;
-
-    if(keysPressed[operatorIdx] === op.subtract) res = firstOperand - secondOperand;
-
-    if(keysPressed[operatorIdx] === op.multiply) res = firstOperand * secondOperand;
-
-    if(keysPressed[operatorIdx] === op.divide) res = firstOperand / secondOperand;
-
-    screen.innerText = res;
-    
-    keysPressed = res.toString().split("");
-}
-
-const resolveInternalOp = (idxExternalOp, idxInternalOp) => {
-    let firstOperand = keysPressed.slice(0, idxExternalOp + 1);
-    let res = calculateInternalOp(idxExternalOp, idxInternalOp);
-    
-    let secondOperand = res.toString().split("");
-    keysPressed = firstOperand.concat(secondOperand);
-}
-
-const calculate = (operation, operatorIndexes) => {
 
     if(keysPressed[keysPressed.length - 1] === op.add || 
         keysPressed[keysPressed.length - 1] === op.subtract || 
@@ -189,43 +145,89 @@ const calculate = (operation, operatorIndexes) => {
         keysPressed.push(operation);
         console.log(keysPressed);
         return;
-    } 
+    }
     
-    if(operation === op.add || operation === op.subtract){
-        if(operatorIndexes.plus !== -1) resolve(operatorIndexes.plus, operatorIndexes);
-        
-        if(operatorIndexes.minus !== -1) resolve(operatorIndexes.minus, operatorIndexes);
-        
-    } 
-    
-    if(operation === op.multiply || operation === op.divide){
-        if(operatorIndexes.plus !== -1 && operatorIndexes.mult !== -1){
-            resolveInternalOp(operatorIndexes.plus, operatorIndexes.mult);
-        }
+    let idxInternalOp = -1;
 
-        if(operatorIndexes.plus !== -1 && operatorIndexes.div !== -1){
-            resolveInternalOp(operatorIndexes.plus, operatorIndexes.div);
-        }
+    const operatorIndexes = Object.values(operatorIdxs);
 
-        if(operatorIndexes.minus !== -1 && operatorIndexes.mult !== -1){
-            resolveInternalOp(operatorIndexes.minus, operatorIndexes.mult);
-        }
+    const activeOperators = operatorIndexes.filter(idx => idx !== -1);
+    
+    let idxExternalOp = activeOperators[0];
 
-        if(operatorIndexes.minus !== -1 && operatorIndexes.div !== -1){
-            resolveInternalOp(operatorIndexes.minus, operatorIndexes.div);
-        }
-    } 
-    
-    if(operatorIndexes.plus === -1 && operatorIndexes.minus === -1 && operatorIndexes.mult !== -1){
-        resolve(operatorIndexes.mult, operatorIndexes);
-    } 
-    
-    if(operatorIndexes.plus === -1 && operatorIndexes.minus === -1 && operatorIndexes.div !== -1){
-        resolve(operatorIndexes.div, operatorIndexes);
+    if(activeOperators.length === 0 || 
+    ((activeOperators.length === 1) && (operation === op.multiply || operation === op.divide) &&
+    (keysPressed[idxExternalOp] === op.add || keysPressed[idxExternalOp] === op.subtract))){
+        // No hay operadores o falta completar el segundo operador interno
+        keysPressed.push(operation);
+        console.log(keysPressed);
+        return;
     }
 
+    let firstOperand = parseInt(keysPressed.slice(0, idxExternalOp).join(''));
+    let secondOperand = parseInt(keysPressed.slice(idxExternalOp + 1, keysPressed.length).join(''));
+    
+    if(activeOperators.length === 2){
+        // Caso operacion combinada 
+        idxInternalOp = activeOperators[1];
+
+        let firstOpInternal = parseInt(keysPressed.slice(idxExternalOp + 1, idxInternalOp).join(''));
+        let secondOpInternal = parseInt(keysPressed.slice(idxInternalOp + 1, keysPressed.length).join(''));
+
+        secondOperand = firstOpInternal * secondOpInternal;
+
+        if(keysPressed[idxInternalOp] === op.divide){
+            if(secondOpInternal === 0){
+                res = ZERO_DIVIDER_ERR;
+                screen.innerText = res;
+                keysPressed = [];
+                console.log(keysPressed);
+                return;
+            } else {
+                secondOperand = firstOpInternal / secondOpInternal;
+            }
+        }
+
+        if(operation === op.multiply || operation === op.divide){
+            // Concatenar resultados
+            firstOperand = firstOperand.toString().split("");
+
+            res = secondOperand;
+            screen.innerText = res;
+            
+            keysPressed = (firstOperand.concat(keysPressed[idxExternalOp])).concat(secondOperand.toString().split(""));
+            keysPressed.push(operation);
+            console.log(keysPressed);
+            
+            return res;
+        }
+    }
+    
+    if(keysPressed[idxExternalOp] === op.add) res = firstOperand + secondOperand;
+    
+    if(keysPressed[idxExternalOp] === op.subtract) res = firstOperand - secondOperand;
+    
+    if(keysPressed[idxExternalOp] === op.multiply) res = firstOperand * secondOperand;
+
+    if(keysPressed[idxExternalOp] === op.divide){
+        if(secondOperand === 0){
+            res = ZERO_DIVIDER_ERR;
+            screen.innerText = res;
+            keysPressed = [];
+            console.log(keysPressed);
+            return;
+        } else {
+            res = firstOperand / secondOperand;
+        }
+    } 
+
+    screen.innerText = res;
+    
+    keysPressed = res.toString().split("");
     keysPressed.push(operation);
     console.log(keysPressed);
+
+    return res;
 }
 
 plusKey.addEventListener("click", event => {
@@ -237,7 +239,7 @@ plusKey.addEventListener("click", event => {
 
 minusKey.addEventListener("click", event => {
     const minus = event.target.value;
-
+    
     const operatorIdxs = findOperationsIndexes(keysPressed, op);
     calculate(minus, operatorIdxs);
 })
@@ -268,80 +270,104 @@ deleteKey.addEventListener("click", () => {
     console.log(keysPressed);
 })
 
-const calculateBasicOperation = operatorIdx => {
-    let res = 0;
-    let firstOperand = parseInt(keysPressed.slice(0, operatorIdx).join(''));
-    let secondOperand = parseInt(keysPressed.slice(operatorIdx + 1, keysPressed.length).join(''));
-
-    if(keysPressed[operatorIdx] === op.add) res = firstOperand + secondOperand;
-
-    if(keysPressed[operatorIdx] === op.subtract) res = firstOperand - secondOperand;
-
-    if(keysPressed[operatorIdx] === op.multiply) res = firstOperand * secondOperand;
-
-    if(keysPressed[operatorIdx] === op.divide) res = firstOperand / secondOperand;
-    
-    return res;
-}
-
 equalKey.addEventListener("click", () => {
+    let result = 0;
     console.log("veo lo que hay en teclas presionadas", keysPressed);
-    let res = 0;
 
     const operatorIdxs = findOperationsIndexes(keysPressed, op);
-
-    console.log(operatorIdxs);
-
-    if(operatorIdxs.plus !== -1){
-        console.log("entro en una suma comun a priori")
-        let firstOperand = parseInt(keysPressed.slice(0, operatorIdxs.plus).join(''));
-        let secondOperand = parseInt(keysPressed.slice(operatorIdxs.plus + 1, keysPressed.length).join(''));
-
-        if(operatorIdxs.mult !== -1){
-            console.log("ahora, entrando a combinada suma y multi");
-            secondOperand = calculateInternalOp(operatorIdxs.plus, operatorIdxs.mult);
-        }
-
-        if(operatorIdxs.div !== -1){
-            console.log("ahora, entrando a combinada suma y div");
-            secondOperand = calculateInternalOp(operatorIdxs.plus, operatorIdxs.div);
-        }
-
-        res = firstOperand + secondOperand;
-    }
     
-    if(operatorIdxs.minus !== -1){
-        console.log("entrando a priori en una resta comun");
-        let firstOperand = parseInt(keysPressed.slice(0, operatorIdxs.minus).join(''));
-        let secondOperand = parseInt(keysPressed.slice(operatorIdxs.minus + 1, keysPressed.length).join(''));
+    const operatorIndexes = Object.values(operatorIdxs);
 
-        if(operatorIdxs.mult !== -1){
-            console.log("ahora, entrando a combinada suma y multi");
-            secondOperand = calculateInternalOp(operatorIdxs.minus, operatorIdxs.mult);
-        }
-
-        if(operatorIdxs.div !== -1){
-            console.log("ahora, entrando a combinada suma y div");
-            secondOperand = calculateInternalOp(operatorIdxs.minus, operatorIdxs.div);
-        }
-
-        res = firstOperand - secondOperand;
-    }
+    const activeOperators = operatorIndexes.filter(idx => idx !== -1);
     
-    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.mult !== -1){
-        console.log("entrando a mult comun");
-        res = calculateBasicOperation(operatorIdxs.mult);
-    }
+    let idxExternalOp = activeOperators[0];
 
-    if(operatorIdxs.plus === -1 && operatorIdxs.minus === -1 && operatorIdxs.div !== -1){
-        console.log("entrando a div comun");
-        res = calculateBasicOperation(operatorIdxs.div);
-    }
+    if(keysPressed[idxExternalOp] === op.add) result = calculate(op.add, operatorIdxs);
     
-    screen.innerText = res;
-    console.log("res", res);
+    if(keysPressed[idxExternalOp] === op.subtract) result = calculate(op.subtract, operatorIdxs);
     
-    keysPressed = res.toString().split("");
-    console.log("keypressed", keysPressed);
-
+    if(keysPressed[idxExternalOp] === op.multiply) result = calculate(op.multiply, operatorIdxs);
+    
+    if(keysPressed[idxExternalOp] === op.divide) result = calculate(op.divide, operatorIdxs);
 })
+
+
+// Casos a resolver
+
+/* 
+
+suma 
+1 + 1 +       -> 2 +  (OK)
+1 - 1 +       -> 0 +  (OK)
+1 * 1 +       -> 1 +  (OK)
+1 / 1 +       -> 1 +  (OK)
+1 / 0 +       -> error (OK)
+1 + 2 * 1 +   -> 3 + (OK)
+1 - 2 * 1 +   -> -1 + (OK)
+1 + 2 / 1 +   -> 3 + (OK)
+1 - 2 / 1 +   -> -1 + (OK)
+1 + 2 / 0 +   -> error (OK)
+1 - 2 / 0 +   -> error (OK)
+
+resta 
+1 + 1 -       -> 2 -    (OK)
+1 - 1 -       -> 0 -    (OK)
+1 * 1 -       -> 1 -    (OK)
+1 / 1 -       -> 1 -    (OK)
+1 / 0 -       -> error  (OK)
+1 + 2 * 1 -   -> 3 -    (OK)
+1 - 2 * 1 -   -> -1 -   (OK)
+1 + 2 / 1 -   -> 3 -    (OK)
+1 - 2 / 1 -   -> -1 -   (OK)
+1 + 2 / 0 -   -> error  (OK)
+1 - 2 / 0 -   -> error  (OK)
+
+multiplicacion
+1 + 1 *       -> pasa al caso suma,resta o [+,*]   (OK)
+1 - 1 *       -> pasa al caso suma,resta o [-,*]   (OK)
+1 * 1 *       -> 1 *      (OK)
+1 / 1 *       -> 1 *      (OK)
+1 / 0 *       -> error    (OK)
+1 + 2 * 1 *   -> 1 + 2 *  (OK)
+1 - 2 * 1 *   -> 1 - 2 *  (OK)
+1 + 2 / 1 *   -> 1 + 2 *  (OK)
+1 - 2 / 1 *   -> 1 - 2 *  (OK)
+1 + 2 / 0 *   -> error    (OK)
+1 - 2 / 0 *   -> error    (OK)
+
+division
+1 + 1 /       -> pasa al caso suma,resta o [+,/]    (OK)
+1 - 1 /       -> pasa al caso suma,resta o [-,/]   (OK)
+1 * 1 /       -> 1 /   (OK)
+1 / 1 /       -> 1 /   (OK)
+1 / 0 /       -> error   (OK)
+1 + 2 * 1 /   -> 1 + 2 /     (OK)
+1 - 2 * 1 /   -> 1 - 2 /   (OK)
+1 + 2 / 1 /   -> 1 + 2 /   (OK)
+1 - 2 / 1 /   -> 1 - 2 /   (OK)
+1 + 2 / 0 /   -> error   (OK)
+1 - 2 / 0 /   -> error   (OK)
+
+*/
+
+// combinaciones posibles
+
+// caso 1: tengo como operador externo (+,-) y clickeo sobre la * o /. No hago nada 
+
+// caso 2: tengo como op externo (+,-) y ya tengo como op interno * o / (vino del caso 1):
+
+// caso 2.a: si clickeo sobre + o -, resuelvo la * o / y luego la + o - y envio el res mas (+,-)
+// caso 2.b: si clickeo sobre * o /, resuelvo la * o / y luego envio el arreglo desde el principio
+// hasta el operador externo concatenado con el res de la op interna
+
+// caso 3: cualquier otra combinacion. realizo simplemente la operacion entre dos numeros  
+
+// calculatee = (multiplication, operatorIdxs)
+
+
+
+
+
+
+
+
